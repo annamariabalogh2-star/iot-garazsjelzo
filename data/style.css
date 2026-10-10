@@ -1,0 +1,848 @@
+:root {
+    --background: #070a0d;
+    --surface: #10161b;
+    --line: #29343c;
+    --text: #f3f7f9;
+    --muted: #82909a;
+
+    --green: #35e2a3;
+    --amber: #ffc24c;
+    --red: #ff5365;
+
+    --state-color: var(--amber);
+    --side-color: var(--green);
+    --needle-angle: 18deg;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    min-height: 100vh;
+    margin: 0;
+    padding: 20px 12px;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+
+    color: var(--text);
+    background:
+        radial-gradient(
+            circle at top,
+            #172027 0%,
+            var(--background) 42%
+        );
+
+    font-family:
+        Inter,
+        system-ui,
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        sans-serif;
+}
+
+.dashboard {
+    width: min(390px, 100%);
+    overflow: hidden;
+
+    border: 1px solid #34414a;
+    border-radius: 30px;
+
+    background:
+        radial-gradient(
+            circle at 50% 22%,
+            color-mix(
+                in srgb,
+                var(--state-color) 12%,
+                transparent
+            ),
+            transparent 31%
+        ),
+        linear-gradient(
+            180deg,
+            #11181d,
+            var(--background) 48%
+        );
+
+    box-shadow:
+        0 24px 70px rgb(0 0 0 / 42%);
+}
+
+.top-bar {
+    height: 58px;
+    padding: 0 20px;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    border-bottom: 1px solid var(--line);
+}
+
+.brand {
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+}
+
+.brand span {
+    color: var(--state-color);
+}
+
+.connection {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+
+    color: var(--muted);
+
+    font-size: 10px;
+    letter-spacing: 0.1em;
+}
+
+.connection-dot {
+    width: 7px;
+    height: 7px;
+
+    border-radius: 50%;
+
+    background: var(--green);
+
+    box-shadow:
+        0 0 10px rgb(53 226 163 / 70%);
+}
+
+/* Nagy központi műszer */
+
+.main-gauge {
+    position: relative;
+
+    width: 205px;
+    height: 205px;
+    margin: 24px auto 16px;
+
+    display: grid;
+    place-items: center;
+
+    border-radius: 50%;
+
+    background:
+        radial-gradient(
+            circle,
+            #091015 0 61%,
+            transparent 62%
+        ),
+        repeating-conic-gradient(
+            from 220deg,
+            rgb(255 255 255 / 60%) 0 1deg,
+            transparent 1deg 9deg
+        ),
+        conic-gradient(
+            from 220deg,
+            var(--green) 0 31%,
+            var(--amber) 31% 55%,
+            var(--red) 55% 69%,
+            #1b252c 69% 78%,
+            transparent 78% 100%
+        );
+
+    box-shadow:
+        inset 0 0 30px rgb(0 0 0 / 70%),
+        0 0 26px
+        color-mix(
+            in srgb,
+            var(--state-color) 14%,
+            transparent
+        );
+}
+
+.main-gauge::before {
+    content: "";
+
+    position: absolute;
+    left: 50%;
+    bottom: 45px;
+
+    width: 4px;
+    height: 64px;
+
+    border-radius: 4px;
+
+    background: var(--state-color);
+
+    transform-origin: 50% 56px;
+    transform:
+        translateX(-50%)
+        rotate(var(--needle-angle));
+
+    box-shadow:
+        0 0 12px
+        color-mix(
+            in srgb,
+            var(--state-color) 70%,
+            transparent
+        );
+
+    transition:
+        transform 250ms ease,
+        background-color 250ms ease;
+}
+
+.main-gauge::after {
+    content: "";
+
+    position: absolute;
+    left: 50%;
+    bottom: 37px;
+
+    width: 18px;
+    height: 18px;
+
+    border: 4px solid #11191e;
+    border-radius: 50%;
+
+    background: var(--state-color);
+
+    transform: translateX(-50%);
+}
+
+.gauge-content {
+    position: relative;
+    z-index: 1;
+
+    margin-top: 10px;
+
+    text-align: center;
+}
+
+.gauge-label {
+    color: var(--muted);
+
+    font-size: 10px;
+    letter-spacing: 0.16em;
+}
+
+.gauge-content strong {
+    display: block;
+
+    margin-top: 6px;
+
+    color: var(--state-color);
+
+    font-size: 30px;
+    line-height: 1;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+
+    text-shadow:
+        0 0 18px
+        color-mix(
+            in srgb,
+            var(--state-color) 35%,
+            transparent
+        );
+}
+
+.main-distance {
+    margin-top: 9px;
+
+    font-size: 19px;
+    font-variant-numeric: tabular-nums;
+}
+
+.main-distance small {
+    display: block;
+
+    margin-top: 3px;
+
+    color: var(--muted);
+
+    font-size: 9px;
+    letter-spacing: 0.08em;
+}
+
+/* Autó és érzékelési zónák */
+
+.radar-view {
+    position: relative;
+
+    height: 270px;
+    margin: 0 18px;
+
+    overflow: hidden;
+
+    border-top: 1px solid var(--line);
+    border-bottom: 1px solid var(--line);
+
+    background:
+        linear-gradient(
+            90deg,
+            transparent 49.7%,
+            rgb(255 255 255 / 7%) 50%,
+            transparent 50.3%
+        ),
+        repeating-linear-gradient(
+            0deg,
+            transparent 0 29px,
+            rgb(255 255 255 / 2.5%) 30px 31px
+        );
+}
+
+.front-wall {
+    position: absolute;
+    top: 22px;
+    left: 12%;
+
+    width: 76%;
+    height: 6px;
+
+    background: #5b676e;
+
+    box-shadow:
+        0 0 12px rgb(255 255 255 / 12%);
+}
+
+.radar-arcs {
+    position: absolute;
+    top: 40px;
+    left: 50%;
+
+    width: 174px;
+    height: 78px;
+
+    transform: translateX(-50%);
+}
+
+.radar-arc {
+    position: absolute;
+    left: 50%;
+
+    border: 4px solid var(--state-color);
+    border-bottom: 0;
+    border-radius: 100px 100px 0 0;
+
+    transform: translateX(-50%);
+
+    transition: border-color 250ms ease;
+}
+
+.radar-arc:nth-child(1) {
+    top: 42px;
+
+    width: 62px;
+    height: 22px;
+}
+
+.radar-arc:nth-child(2) {
+    top: 21px;
+
+    width: 108px;
+    height: 43px;
+
+    opacity: 0.62;
+}
+
+.radar-arc:nth-child(3) {
+    top: 0;
+
+    width: 154px;
+    height: 64px;
+
+    opacity: 0.28;
+}
+
+.car {
+    position: absolute;
+    top: 107px;
+    left: 50%;
+
+    width: 110px;
+    height: 154px;
+
+    border: 2px solid #768791;
+    border-radius: 40px 40px 27px 27px;
+
+    background:
+        linear-gradient(
+            90deg,
+            #151c22 0 14%,
+            #2e3a42 14% 86%,
+            #151c22 86%
+        );
+
+    transform: translateX(-50%);
+
+    box-shadow:
+        0 18px 28px rgb(0 0 0 / 45%);
+}
+
+.windshield {
+    position: absolute;
+    top: 25px;
+    left: 16px;
+    right: 16px;
+
+    height: 42px;
+
+    border: 1px solid #627985;
+    border-radius: 20px 20px 7px 7px;
+
+    background:
+        linear-gradient(
+            180deg,
+            #31434d,
+            #17232a
+        );
+}
+
+.rear-window {
+    position: absolute;
+    right: 18px;
+    bottom: 23px;
+    left: 18px;
+
+    height: 34px;
+
+    border: 1px solid #52656f;
+    border-radius: 7px 7px 16px 16px;
+
+    background: #131b20;
+}
+
+.front-light {
+    position: absolute;
+    top: 8px;
+
+    width: 24px;
+    height: 6px;
+
+    border-radius: 6px;
+
+    background: var(--state-color);
+
+    box-shadow:
+        0 0 10px
+        color-mix(
+            in srgb,
+            var(--state-color) 75%,
+            transparent
+        );
+}
+
+.front-light.left {
+    left: 15px;
+}
+
+.front-light.right {
+    right: 15px;
+}
+
+.side-zone {
+    position: absolute;
+    top: 129px;
+    left: calc(50% + 69px);
+
+    width: 61px;
+    height: 108px;
+
+    border-left: 2px solid var(--side-color);
+
+    background:
+        linear-gradient(
+            90deg,
+            color-mix(
+                in srgb,
+                var(--side-color) 14%,
+                transparent
+            ),
+            transparent
+        );
+}
+
+.side-zone::before,
+.side-zone::after {
+    content: "";
+
+    position: absolute;
+    left: -5px;
+
+    width: 8px;
+    height: 8px;
+
+    border-radius: 50%;
+
+    background: var(--side-color);
+
+    box-shadow:
+        0 0 10px
+        color-mix(
+            in srgb,
+            var(--side-color) 65%,
+            transparent
+        );
+}
+
+.side-zone::before {
+    top: 0;
+}
+
+.side-zone::after {
+    bottom: 0;
+}
+
+.side-zone-label {
+    position: absolute;
+    top: 242px;
+    left: calc(50% + 72px);
+
+    color: var(--side-color);
+
+    font-size: 9px;
+    letter-spacing: 0.11em;
+}
+
+/* Két kisebb műszer */
+
+.small-gauges {
+    width: 286px;
+    margin: 18px auto 20px;
+
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 22px;
+}
+
+.small-gauge {
+    --gauge-color: var(--state-color);
+
+    position: relative;
+
+    width: 132px;
+    height: 132px;
+
+    display: grid;
+    place-items: center;
+
+    border-radius: 50%;
+
+    background:
+        radial-gradient(
+            circle,
+            #091015 0 62%,
+            transparent 63%
+        ),
+        repeating-conic-gradient(
+            from 220deg,
+            rgb(255 255 255 / 50%) 0 1deg,
+            transparent 1deg 14deg
+        ),
+        conic-gradient(
+            from 220deg,
+            var(--gauge-color) 0 58%,
+            #1b252c 58% 78%,
+            transparent 78% 100%
+        );
+
+    box-shadow:
+        inset 0 0 22px rgb(0 0 0 / 70%),
+        0 0 18px
+        color-mix(
+            in srgb,
+            var(--gauge-color) 11%,
+            transparent
+        );
+}
+
+.side-gauge {
+    --gauge-color: var(--side-color);
+}
+
+.small-gauge-content {
+    position: relative;
+    z-index: 1;
+
+    text-align: center;
+}
+
+.small-gauge-content span {
+    color: var(--muted);
+
+    font-size: 9px;
+    letter-spacing: 0.12em;
+}
+
+.small-gauge-content strong {
+    display: block;
+
+    margin-top: 5px;
+
+    color: var(--gauge-color);
+
+    font-size: 23px;
+    line-height: 1;
+    font-weight: 600;
+}
+
+.small-gauge-content small {
+    display: block;
+
+    margin-top: 6px;
+
+    color: var(--muted);
+
+    font-size: 9px;
+    letter-spacing: 0.08em;
+}
+
+/* Alsó állapotsor */
+
+.status-bar {
+    min-height: 50px;
+    padding: 0 20px;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    border-top: 1px solid var(--line);
+
+    color: var(--muted);
+
+    font-size: 10px;
+    letter-spacing: 0.1em;
+}
+
+.status-bar strong {
+    color: var(--text);
+    font-weight: 600;
+}
+
+/* Ideiglenes tesztgombok */
+
+.demo-controls {
+    width: min(390px, 100%);
+
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px;
+}
+
+.demo-controls button {
+    min-height: 42px;
+    padding: 0 14px;
+
+    border: 1px solid #43505a;
+    border-radius: 10px;
+
+    color: #aab5bc;
+    background: #0d1317;
+
+    font: inherit;
+    font-size: 12px;
+    letter-spacing: 0.06em;
+}
+
+.demo-controls button.active {
+    color: var(--state-color);
+    border-color: var(--state-color);
+
+    background:
+        color-mix(
+            in srgb,
+            var(--state-color) 12%,
+            #0d1317
+        );
+}
+
+/* Arányok végleges finomhangolása */
+
+.top-bar {
+    height: 44px;
+    padding: 0 16px;
+}
+
+.brand {
+    font-size: 11px;
+}
+
+.connection {
+    font-size: 9px;
+}
+
+/* Kisebb felső műszer */
+
+.main-gauge {
+    width: 180px;
+    height: 180px;
+    margin: 16px auto 10px;
+}
+
+.main-gauge::before {
+    bottom: 40px;
+
+    height: 54px;
+
+    transform-origin: 50% 47px;
+}
+
+.main-gauge::after {
+    bottom: 32px;
+
+    width: 16px;
+    height: 16px;
+}
+
+.gauge-content {
+    margin-top: 7px;
+}
+
+.gauge-content strong {
+    margin-top: 5px;
+
+    font-size: 25px;
+}
+
+.main-distance {
+    margin-top: 7px;
+
+    font-size: 17px;
+}
+
+/* A fal közelebb kerül a felső elválasztóvonalhoz */
+
+.radar-view {
+    height: 300px;
+}
+
+.front-wall {
+    top: 8px;
+}
+
+.radar-arcs {
+    top: 25px;
+}
+
+/* Hosszabb, autósabb forma */
+
+.car {
+    top: 94px;
+
+    width: 112px;
+    height: 196px;
+
+    border-radius: 42px 42px 28px 28px;
+}
+
+.windshield {
+    top: 29px;
+
+    height: 48px;
+}
+
+.rear-window {
+    bottom: 28px;
+
+    height: 42px;
+}
+
+/* Az oldalsó zóna igazítása a hosszabb autóhoz */
+
+.side-zone {
+    top: 122px;
+
+    height: 142px;
+}
+
+.side-zone-label {
+    top: 270px;
+}
+
+/* Alacsonyabb alsó állapotsáv */
+
+.status-bar {
+    min-height: 40px;
+    padding: 0 16px;
+
+    font-size: 9px;
+}
+
+#connection-status.demo strong {
+    color: #9fb3c8;
+}
+
+#connection-status.connecting strong {
+    color: #ffc24c;
+}
+
+#connection-status.online strong {
+    color: #35e2a3;
+    text-shadow:
+        0 0 12px rgba(53, 226, 163, 0.45);
+}
+
+#connection-status.offline strong {
+    color: #ff5365;
+    text-shadow:
+        0 0 12px rgba(255, 83, 101, 0.45);
+}
+
+@media (max-width: 370px) {
+    body {
+        padding-inline: 4px;
+    }
+
+    .dashboard {
+        border-radius: 22px;
+    }
+
+    .main-gauge {
+        width: 170px;
+        height: 170px;
+    }
+
+    .main-gauge::before {
+        bottom: 38px;
+
+        height: 50px;
+
+        transform-origin: 50% 43px;
+    }
+
+    .main-gauge::after {
+        bottom: 30px;
+
+        width: 15px;
+        height: 15px;
+    }
+
+    .gauge-content strong {
+        font-size: 23px;
+    }
+
+    .main-distance {
+        font-size: 16px;
+    }
+
+    .small-gauges {
+        width: 260px;
+        gap: 12px;
+    }
+
+    .small-gauge {
+        width: 124px;
+        height: 124px;
+    }
+
+    .small-gauge-content strong {
+        font-size: 21px;
+    }
+
+    .status-bar {
+        font-size: 8px;
+    }
+}

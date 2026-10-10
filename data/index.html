@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Garage Assist</title>
+
+    <link rel="stylesheet" href="style.css">
+    <script src="script.js" defer></script>
+</head>
+
+<body>
+    <main class="dashboard" id="dashboard">
+
+        <header class="top-bar">
+            <div class="brand">
+                GARAGE<span>//</span>ASSIST
+            </div>
+
+            <div class="connection">
+                <span class="connection-dot"></span>
+                AP MODE
+            </div>
+        </header>
+
+        <!-- Nagy központi műszer -->
+        <section
+            class="main-gauge"
+            aria-label="Current parking status"
+        >
+            <div
+                class="gauge-content"
+                aria-live="polite"
+            >
+                <span class="gauge-label">
+                    PARKING ASSIST
+                </span>
+
+                <strong id="parking-status">
+                    SLOW
+                </strong>
+
+                <div class="main-distance">
+                    <span id="main-distance-value">42</span>
+                    <small>CM TO STOP</small>
+                </div>
+            </div>
+        </section>
+
+        <!-- Autó és parkolóradar -->
+        <section
+            class="radar-view"
+            aria-label="Car position and measured zones"
+        >
+            <div class="front-wall"></div>
+
+            <div class="radar-arcs" aria-hidden="true">
+                <span class="radar-arc"></span>
+                <span class="radar-arc"></span>
+                <span class="radar-arc"></span>
+            </div>
+
+            <div class="car" aria-hidden="true">
+                <div class="windshield"></div>
+                <div class="rear-window"></div>
+
+                <span class="front-light left"></span>
+                <span class="front-light right"></span>
+            </div>
+
+            <div
+                class="side-zone"
+                id="side-zone"
+                aria-hidden="true"
+            ></div>
+
+            <span
+                class="side-zone-label"
+                id="side-zone-label"
+            >
+                CLEAR
+            </span>
+        </section>
+
+        <!-- Két kisebb műszer -->
+        <section class="small-gauges">
+
+            <div
+                class="small-gauge front-gauge"
+                aria-label="Front sensor value"
+            >
+                <div class="small-gauge-content">
+                    <span>FRONT</span>
+
+                    <strong id="front-distance-value">
+                        42
+                    </strong>
+
+                    <small>CM</small>
+                </div>
+            </div>
+
+            <div
+                class="small-gauge side-gauge"
+                aria-label="Door zone value"
+            >
+                <div class="small-gauge-content">
+                    <span>DOOR ZONE</span>
+
+                    <strong id="side-status">
+                        CLEAR
+                    </strong>
+
+                    <small id="side-distance-value">
+                        86 CM
+                    </small>
+                </div>
+            </div>
+
+        </section>
+
+        <footer class="status-bar">
+            <span
+                id="connection-status"
+                class="demo"
+            >
+                <strong id="connection-state">
+                    DEMO
+                </strong>
+
+                <span id="connection-detail">
+                    · LOCAL
+                </span>
+            </span>
+
+            <span>
+                ESP32-S3 · LOCAL
+            </span>
+        </footer>
+
+    </main>
+
+    <!-- Ideiglenes gombok a látvány teszteléséhez -->
+    <section
+        class="demo-controls"
+        aria-label="Dashboard state preview"
+    >
+        <button type="button" data-state="go">
+            GO
+        </button>
+
+        <button
+            type="button"
+            data-state="slow"
+            class="active"
+        >
+            SLOW
+        </button>
+
+        <button type="button" data-state="stop">
+            STOP
+        </button>
+
+        <button type="button" data-state="blocked">
+            SIDE BLOCKED
+        </button>
+    </section>
+</body>
+</html>
