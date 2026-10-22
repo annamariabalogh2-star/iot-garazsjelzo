@@ -110,6 +110,16 @@ Az ESP32 LittleFS fájlrendszeréből kiszolgált reszponzív webes felület tel
 
 ### Flutter mobilalkalmazás
 
+<p align="center">
+  <img src="mobile-app/garage-assist-screen.png"
+       alt="Garage Assist Flutter Android-alkalmazás"
+       width="320">
+</p>
+
+<p align="center">
+  <em>A helyi hálózaton, valós időben frissülő Flutter Android-alkalmazás.</em>
+</p>
+
 A `mobile-app` mappában található Android-alkalmazás közvetlenül az ESP32 helyi API-jából olvassa az adatokat.
 
 Az alkalmazás főbb elemei:
