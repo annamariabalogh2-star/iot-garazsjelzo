@@ -1,0 +1,5 @@
+{
+  "java.diagnostic.filter": [
+    "**/mobile-app/android/app/src/main/java/io/flutter/plugins/GeneratedPluginRegistrant.java"
+  ]
+}

@@ -981,7 +981,7 @@ Color stateColor(String state) {
       return const Color(0xFFFFBD43);
 
     case 'STOP':
-      return const Color(0xFFFF754A);
+      return const Color(0xFFFF405D);
 
     case 'BLOCKED':
       return const Color(0xFFFF405D);

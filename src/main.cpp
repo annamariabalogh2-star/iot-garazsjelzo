@@ -70,15 +70,19 @@ String determineFrontState(float distance)
 {
     if (distance < 0.0)
     {
-    return "NO_DATA";
+        return "NO_DATA";
     }
 
-    if (distance <= 20.0)
+    // A modellhez kalibrált határértékek:
+    // 0–5 cm: megállás
+    // 6–14 cm: lassítás
+    // 15 cm felett: szabad út
+    if (distance <= 5.0)
     {
         return "STOP";
     }
 
-    if (distance <= 60.0)
+    if (distance <= 14.0)
     {
         return "SLOW";
     }
@@ -89,16 +93,65 @@ String determineFrontState(float distance)
 
 String determineSideState(float distance)
 {
+    static bool blocked = false;
+    static unsigned long tooCloseSince = 0;
+    static unsigned long clearSince = 0;
+
     if (distance < 0.0)
     {
-    return "NO_DATA";
-    }
-    if (distance <= 30.0)
-    {
-        return "BLOCKED";
+        tooCloseSince = 0;
+        clearSince = 0;
+        return "NO_DATA";
     }
 
-    return "CLEAR";
+    // Üres garázs: biztosan szabad.
+    if (distance >= 10.0)
+    {
+        blocked = false;
+        tooCloseSince = 0;
+        clearSince = 0;
+    }
+    // Csak akkor legyen BLOCKED, ha legalább
+    // 0,6 másodpercig folyamatosan túl közel van.
+    else if (distance <= 3.0)
+    {
+        clearSince = 0;
+
+        if (tooCloseSince == 0)
+        {
+            tooCloseSince = millis();
+        }
+
+        if (millis() - tooCloseSince >= 600)
+        {
+            blocked = true;
+        }
+    }
+    // A középen álló autó normális oldaltávolsága.
+    // Stabil mérés után visszaáll CLEAR állapotba.
+    else if (distance >= 3.5 && distance <= 4.8)
+    {
+        tooCloseSince = 0;
+
+        if (clearSince == 0)
+        {
+            clearSince = millis();
+        }
+
+        if (millis() - clearSince >= 800)
+        {
+            blocked = false;
+        }
+    }
+    // Az 5–6 cm-es téves közeli mérés ne oldja fel
+    // a már aktív BLOCKED állapotot.
+    else
+    {
+        tooCloseSince = 0;
+        clearSince = 0;
+    }
+
+    return blocked ? "BLOCKED" : "CLEAR";
 }
 
 float measureDistanceCm(
@@ -227,89 +280,57 @@ float calculateMedian(
 
 void updateTrafficLight()
 {
-    if (frontDistance < 0.0)
-    {
-    digitalWrite(RED_LED_PIN, LOW);
-    digitalWrite(YELLOW_LED_PIN, LOW);
-    digitalWrite(GREEN_LED_PIN, LOW);
-    return;
-    }
-
-    bool stopState =
-        frontDistance <= 20.0;
-
-    bool slowState =
-        frontDistance > 20.0
-        && frontDistance <= 60.0;
-
-    bool goState =
-        frontDistance > 60.0;
+    const String frontState =
+        determineFrontState(frontDistance);
 
     digitalWrite(
         RED_LED_PIN,
-        stopState ? HIGH : LOW
+        frontState == "STOP" ? HIGH : LOW
     );
 
     digitalWrite(
         YELLOW_LED_PIN,
-        slowState ? HIGH : LOW
+        frontState == "SLOW" ? HIGH : LOW
     );
 
     digitalWrite(
         GREEN_LED_PIN,
-        goState ? HIGH : LOW
+        frontState == "GO" ? HIGH : LOW
     );
 }
 
 void updateBuzzer()
 {
-    static unsigned long previousToggleTime = 0;
-    static bool buzzerIsOn = false;
-
-    if (frontDistance < 0.0)
+    if (frontDistance < 0.0 || frontDistance > 14.0)
     {
-    buzzerIsOn = false;
-    digitalWrite(BUZZER_PIN, LOW);
-    return;
-    }
-
-    unsigned long currentTime =
-        millis();
-
-    unsigned long toggleInterval;
-
-    if (frontDistance > 60.0)
-    {
-        buzzerIsOn = false;
         digitalWrite(BUZZER_PIN, LOW);
         return;
     }
 
-    if (frontDistance <= 20.0)
+    const unsigned long currentTime = millis();
+    unsigned long cycleLength;
+    unsigned long beepLength;
+
+    if (frontDistance <= 5.0)
     {
-        toggleInterval = 120;
+        // STOP: gyors, de rövid pittyenések.
+        cycleLength = 350;
+        beepLength = 120;
     }
     else
     {
-        toggleInterval = 500;
+        // SLOW: másodpercenként egy rövid pittyenés.
+        cycleLength = 1000;
+        beepLength = 100;
     }
 
-    if (
-        currentTime - previousToggleTime
-        >= toggleInterval
-    )
-    {
-        previousToggleTime =
-            currentTime;
+    const bool buzzerIsOn =
+        (currentTime % cycleLength) < beepLength;
 
-        buzzerIsOn =
-            !buzzerIsOn;
-
-        digitalWrite(
-            BUZZER_PIN,
-            buzzerIsOn ? HIGH : LOW
-        );
-    }
+    digitalWrite(
+        BUZZER_PIN,
+        buzzerIsOn ? HIGH : LOW
+    );
 }
 
 void updateOledDisplay()
