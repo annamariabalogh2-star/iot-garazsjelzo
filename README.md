@@ -1,68 +1,222 @@
-# Kétzónás intelligens garázsbeállást segítő rendszer
+# Garage Assist – kétzónás intelligens garázsbeállást segítő rendszer
 
-ESP32-alapú, hálózatra kapcsolható IoT-prototípus, amely egy jármű garázson belüli elhelyezkedését két külön mérési zónában figyeli.
+ESP32-S3 alapú IoT-rendszer, amely két ultrahangos érzékelővel figyeli egy jármű helyzetét a garázsban. A mérési adatok helyben, OLED-kijelzőn, LED-es jelzőlámpán, hangjelzéssel, webes felületen és Flutter mobilalkalmazásban is megjelennek.
 
-## A projekt célja
+A rendszer saját Wi-Fi-hálózatot hoz létre, ezért internetkapcsolat nélkül is használható és bemutatható.
 
-A rendszer célja, hogy segítse a biztonságos garázsbeállást:
+## Fő funkciók
 
-- mérje az autó és az első fal közötti távolságot;
-- figyelje az autó melletti biztonsági vagy ajtónyitási területet;
-- fény- és szöveges jelzést adjon a használónak;
-- helyi webes felületen is megjelenítse a mérési adatokat.
+- elülső parkolási távolság mérése;
+- oldalsó ajtónyitási és biztonsági zóna figyelése;
+- `GO`, `SLOW` és `STOP` parkolási állapotok;
+- `CLEAR` és `BLOCKED` oldalsó állapotok;
+- zöld, sárga és piros LED-es visszajelzés;
+- távolságfüggő hangjelzés;
+- élő adatok OLED-kijelzőn;
+- reszponzív, helyi webes kezelőfelület;
+- natív Android-alkalmazás Flutterrel;
+- JSON-alapú HTTP API;
+- saját ESP32 Wi-Fi-hozzáférési pont;
+- működés külső internetkapcsolat nélkül.
 
-A működés egy asztalon bemutatható garázsmaketten és mozgatható autómodellen lesz szemléltethető.
+## Rendszerfelépítés
 
-## Tervezett funkciók
+| Bemenet | Feldolgozás | Kimenet |
+|---|---|---|
+| Elülső HC-SR04 | ESP32-S3 távolságértékelés | `GO`, `SLOW` vagy `STOP` állapot |
+| Oldalsó HC-SR04 | ESP32-S3 stabilizált állapotértékelés | `CLEAR` vagy `BLOCKED` állapot |
+| ESP32-S3 | Helyi visszajelzés | OLED, LED-ek és hangjelző |
+| ESP32-S3 HTTP API | Hálózati adatátadás | Webes felület és Flutter Android-alkalmazás |
 
-- két külön távolságmérési zóna;
-- zöld, sárga és piros parkolási állapot;
-- külön oldalsó akadályjelzés;
-- aktuális értékek megjelenítése egy kis kijelzőn;
-- telefonról vagy számítógépről megnyitható helyi webes felület;
-- állítható figyelmeztetési távolságok;
-- alapvető működés hálózati kapcsolat nélkül is;
-- saját Wi-Fi-hálózat a tantermi bemutatóhoz.
+## Felhasznált hardver
 
-## Tervezett technológiák
+| Alkatrész | Feladat |
+|---|---|
+| ESP32-S3 DevKitC-1 | Központi vezérlés és Wi-Fi-hozzáférési pont |
+| 2 × HC-SR04 | Elülső és oldalsó távolságmérés |
+| 0,96" SSD1306 OLED | Helyi mérési adatok és állapotok |
+| Piros, sárga és zöld LED | Parkolási állapot visszajelzése |
+| Aktív hangjelző | Távolságfüggő figyelmeztetés |
+| Breadboard és Dupont-kábelek | Prototípus-kábelezés |
+| Karton garázsmakett és autómodell | Asztali demonstráció |
 
-- ESP32-S3 mikrokontroller;
-- PlatformIO IDE;
-- Arduino keretrendszer;
-- C++;
-- HTML, CSS és JavaScript;
-- Git és GitHub.
+### OLED bekötése
 
-## Tervezett működés
+| OLED | ESP32-S3 |
+|---|---|
+| GND | GND |
+| VCC | 3V3 |
+| SCL | GPIO 9 |
+| SDA | GPIO 8 |
 
-Az elülső érzékelő az autómodell és a garázs első fala közötti távolságot méri. A rendszer a beállított határértékek alapján zöld, sárga vagy piros jelzést ad.
+A további GPIO-kiosztást a `src/main.cpp` elején található konstansok tartalmazzák.
 
-A második érzékelő egy oldalsó biztonsági területet figyel. Ha ezen a területen akadály található, a rendszer külön figyelmeztetést jelenít meg akkor is, ha az autó elöl megfelelő helyen áll.
+## Kalibrált állapotok
 
-Az ESP32 saját helyi weboldalt szolgáltat. A felület telefonról és számítógépről is megnyitható. A tantermi bemutatóhoz az ESP32 saját Wi-Fi-hálózatot hozhat létre, ezért nincs szükség internetkapcsolatra.
+### Elülső parkolási zóna
+
+| Mért távolság | Állapot | Jelzés |
+|---:|---|---|
+| Hibás vagy hiányzó mérés | `NO_DATA` | Nincs vezérlési jelzés |
+| 0–5 cm | `STOP` | Piros fény és gyors hangjelzés |
+| 6–14 cm | `SLOW` | Sárga fény és ritka hangjelzés |
+| 15 cm felett | `GO` | Zöld fény, hangjelzés nélkül |
+
+### Oldalsó biztonsági zóna
+
+| Mérési helyzet | Állapot |
+|---|---|
+| Hibás vagy hiányzó mérés | `NO_DATA` |
+| Tartósan 3 cm vagy kisebb távolság | `BLOCKED` |
+| Középen álló autó stabil, körülbelül 4 cm-es távolsággal | `CLEAR` |
+| Üres garázs, legalább 10 cm-es távolsággal | `CLEAR` |
+
+Az oldalsó mérés késleltetett állapotváltást és állapotmegőrzést használ. Ez csökkenti az ultrahangos érzékelő közeli holtteréből és a pillanatnyi mérési ingadozásokból eredő téves jelzéseket.
+
+## Helyi hálózat és API
+
+Az ESP32 saját hozzáférési pontot indít:
+
+- Wi-Fi-hálózat: `GARAGE-ASSIST`
+- Webes felület: `http://192.168.4.1`
+- API-végpont: `http://192.168.4.1/api/status`
+- Frissítési gyakoriság: körülbelül 0,2 másodperc
+
+Példa API-válasz:
+
+```json
+{
+  "frontDistance": 4,
+  "sideDistance": 10,
+  "parkingState": "STOP",
+  "sideState": "BLOCKED"
+}
+```
+
+## Felhasználói felületek
+
+### OLED-kijelző
+
+Az OLED helyben mutatja:
+
+- az elülső távolságot;
+- a parkolási állapotot;
+- az oldalsó távolságot;
+- az oldalsó zóna állapotát.
+
+### Webes felület
+
+Az ESP32 LittleFS fájlrendszeréből kiszolgált reszponzív webes felület telefonról és számítógépről is használható. A megjelenítés HTML, CSS és JavaScript segítségével készült.
+
+### Flutter mobilalkalmazás
+
+A `mobile-app` mappában található Android-alkalmazás közvetlenül az ESP32 helyi API-jából olvassa az adatokat.
+
+Az alkalmazás főbb elemei:
+
+- élő kapcsolatjelző;
+- nagyméretű parkolási műszer;
+- elülső és oldalsó távolságmérő;
+- autó- és radarvizualizáció;
+- színkódolt állapotjelzések;
+- kapcsolatvesztés és `NO_DATA` kezelése.
+
+## A projekt futtatása
+
+### ESP32 firmware
+
+A firmware fordítása:
+
+```bash
+pio run
+```
+
+Feltöltés az ESP32-re:
+
+```bash
+pio run --target upload
+```
+
+A webes fájlok feltöltése a LittleFS fájlrendszerbe:
+
+```bash
+pio run --target uploadfs
+```
+
+### Flutter Android-alkalmazás
+
+```bash
+cd mobile-app
+flutter pub get
+flutter run
+```
+
+Release APK készítése:
+
+```bash
+flutter build apk --release
+```
+
+Az elkészült APK helye:
+
+```text
+mobile-app/build/app/outputs/flutter-apk/app-release.apk
+```
+
+## Projektstruktúra
+
+```text
+iot-garazsjelzo/
+├── data/                 # Webes felület
+├── docs/                 # Projekt-dokumentáció
+├── mobile-app/           # Flutter Android-alkalmazás
+├── src/
+│   └── main.cpp          # ESP32 firmware
+├── test/                 # PlatformIO tesztek
+├── platformio.ini        # PlatformIO konfiguráció
+└── README.md
+```
 
 ## Projektállapot
 
-A projekt jelenleg tervezési szakaszban van.
-
-- [x] Projektötlet kiválasztása
-- [x] Első projektterv elkészítése
+- [x] Projektterv elkészítése
 - [x] PlatformIO-projekt létrehozása
 - [x] Git- és GitHub-repository létrehozása
-- [ ] Alkatrészek végleges kiválasztása
-- [ ] Elülső mérési zóna elkészítése
-- [ ] Oldalsó mérési zóna elkészítése
-- [ ] Helyi visszajelzés kialakítása
-- [ ] Webes felület elkészítése
-- [ ] Garázsmakett megépítése
-- [ ] Tesztelés és dokumentálás
+- [x] Elülső mérési zóna
+- [x] Oldalsó mérési zóna
+- [x] LED-es állapotjelzés
+- [x] Távolságfüggő hangjelzés
+- [x] OLED-kijelző integrációja
+- [x] Saját Wi-Fi-hálózat
+- [x] HTTP API
+- [x] Reszponzív webes felület
+- [x] Flutter Android-alkalmazás
+- [x] Mobilalkalmazás-ikon és release APK
+- [x] Maketthez igazított kalibráció
+- [ ] A festett garázsmakett végleges összeszerelése
+- [ ] Végső fotók és bemutatóanyag elkészítése
 
 ## Dokumentáció
 
-A részletes első projektterv itt található:
+A részletes projektterv:
 
 [Projektterv – Kétzónás intelligens garázsbeállást segítő rendszer](docs/IoT-projektterv-ketzonas-garazsjelzo.docx)
 
+## Továbbfejlesztési lehetőségek
+
+- konfigurálható távolsághatárok;
+- mérési előzmények és grafikonok;
+- tartós, forrasztott kábelezés;
+- 3D nyomtatott vagy más merev ház;
+- iOS-alkalmazás;
+- Wear OS okosóra-kliens;
+- valós garázskörnyezetben végzett kalibráció.
+
 ## Korlátozás
 
-A készülék oktatási és demonstrációs célú prototípus. Nem minősített gépjármű-biztonsági berendezés, ezért valódi garázsban történő használata csak további pontossági, környezeti és megbízhatósági vizsgálatok után lenne lehetséges.
+A rendszer oktatási és demonstrációs célú prototípus. Nem minősített gépjármű-biztonsági berendezés. Valós garázsban történő használatához további pontossági, környezeti, elektromos és megbízhatósági vizsgálatok szükségesek.
+
+## Készítette
+
+**Balogh Annamária**  
+Hálózati operációs rendszerek és IoT – tantárgyi projekt
