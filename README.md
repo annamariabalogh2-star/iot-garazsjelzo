@@ -131,6 +131,41 @@ Az alkalmazás főbb elemei:
 - színkódolt állapotjelzések;
 - kapcsolatvesztés és `NO_DATA` kezelése.
 
+## Működő prototípus
+
+Az elkészült asztali garázsmakett működés közben szemlélteti az elülső parkolási és az oldalsó biztonsági zóna állapotait.
+
+<table>
+  <tr>
+    <td align="center">
+      <img src="docs/images/Front-STOP.jpg"
+           alt="Elülső parkolási zóna STOP állapotban"
+           width="360"><br>
+      <strong>Elülső nézet – STOP állapot</strong>
+    </td>
+    <td align="center">
+      <img src="docs/images/Side-SLOW.jpg"
+           alt="Oldalsó nézet SLOW állapotban"
+           width="360"><br>
+      <strong>Oldalsó nézet – SLOW állapot</strong>
+    </td>
+  </tr>
+  <tr>
+    <td align="center">
+      <img src="docs/images/Side_STOP.jpg"
+           alt="Oldalsó nézet STOP állapotban"
+           width="360"><br>
+      <strong>Oldalsó nézet – STOP állapot</strong>
+    </td>
+    <td align="center">
+      <img src="docs/images/garage-assist-hardware.jpg"
+           alt="A Garage Assist prototípus hardvere és kábelezése"
+           width="360"><br>
+      <strong>ESP32-S3 és a prototípus kábelezése</strong>
+    </td>
+  </tr>
+</table>
+
 ## A projekt futtatása
 
 ### ESP32 firmware
