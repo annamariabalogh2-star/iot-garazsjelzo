@@ -166,6 +166,12 @@ Az elkészült asztali garázsmakett működés közben szemlélteti az elülső
   </tr>
 </table>
 
+## Bemutató és letöltések
+
+- [Garage Assist bemutatóvideó](https://github.com/annamariabalogh2-star/iot-garazsjelzo/releases/download/v1.1.0/garage-assist-mobile-app-demo.mp4)
+- [Android release APK](https://github.com/annamariabalogh2-star/iot-garazsjelzo/releases/download/v1.1.0/app-release.apk)
+- [Garage Assist v1.1.0 Release](https://github.com/annamariabalogh2-star/iot-garazsjelzo/releases/tag/v1.1.0)
+
 ## A projekt futtatása
 
 ### ESP32 firmware
